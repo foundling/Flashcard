@@ -9,6 +9,7 @@ from store import Database
 
 APP_PATH = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = APP_PATH + '/db'
+DB_PATH_DIR = DB_PATH + '/'
 
 def main_menu(CURRENT_CARD_SET = None):
   clear_screen()
@@ -32,7 +33,6 @@ def main_menu(CURRENT_CARD_SET = None):
   if response in ['q','Q','5']:
     sys.exit(0)
   
-
 def create_new_card_set(error_msg=None):
   clear_screen()
  
@@ -49,19 +49,21 @@ def create_new_card_set(error_msg=None):
 
     else:
 
-      with open(APP_PATH + '/' + 'db/' + name + '.db','a+') as f:
+      card_set_name = DB_PATH_DIR + name + '.db'
+      with open(card_set_name, 'a+') as f:
         try:
           f.write('') # create file
         except IOError:
           print "Could Not Open The Requested Card Set. See Log for Details"
         else: 
+          db = Database(name + '.db')
           response = prompt('Card Set %s created successfully. Do you want to add cards to your cardset now? [y/N]' % (name))
           if response in ['y','Y']:
             response = prompt('Do you want to add the cards \n(1) manually, or \n(2) or parse them from a structured file?')
             if response in ['1']:
-              add_cards_manually() 
+              load_cards_manually(db) 
             if response in ['2']:
-              add_cards_from_file()
+              load_cards_from_file(db)
           if response in ['n','N']:
             return
           
@@ -71,9 +73,10 @@ def create_new_card_set(error_msg=None):
     error_msg = "ERROR: You didn't provide a valid name."
     create_new_card_set(error_msg)
 
+# ACTIVATE CARD SET
 def load_card_set():
   clear_screen()
-  cardsets = [ (DB_PATH + '/' + f) for f in os.listdir(DB_PATH) if f.endswith('.db') ]
+  cardsets = [ (DB_PATH_DIR + f) for f in os.listdir(DB_PATH) if f.endswith('.db') ]
   cardsets.sort(key=os.path.getctime)
   if cardsets:
     prompt('Please Choose a Cardset:', False)
@@ -87,11 +90,25 @@ def load_card_set():
   else:
     prompt('You have no Card Sets. Hit any Key to return to the main Menu')
 
-def add_cards_manually():
-  prompt('CARDS MANUALLY')
+# PUT NEW CARDS INTO DB
+def load_cards_manually(db):
+  front,back = None, None
+  while True:
+    front = prompt("FRONT: ")
+    if front in ['q','Q']:
+      break
+    back = prompt("BACK: ")
+    if back in ['q','Q']:
+      break
+    card = [front, back]
+    db.add_card_to_set(card)
+      
+    
+     
 
-def add_cards_from_file():
+def load_cards_from_file():
   prompt('CARDS FROM FILE')
+
 
 ##
 ## Helper Functions
