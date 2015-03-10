@@ -39,7 +39,7 @@ def create_new_card_set(error_msg=None):
   if error_msg:
     name = clean_filename(prompt(error_msg))
   else:
-    name = clean_filename(prompt('Please Enter a Name for your Cardset:  '))
+    name = clean_filename(prompt('Please Enter a Name for your new Flashcard Set:  '))
 
   if name:
 
@@ -56,7 +56,7 @@ def create_new_card_set(error_msg=None):
         except IOError:
           print "Could Not Open The Requested Card Set. See Log for Details"
         else: 
-          db = Database(name + '.db')
+          db = Database(DB_PATH_DIR + name + '.db')
           response = prompt('Card Set %s created successfully. Do you want to add cards to your cardset now? [y/N]' % (name))
           if response in ['y','Y']:
             response = prompt('Do you want to add the cards \n(1) manually, or \n(2) or parse them from a structured file?')
