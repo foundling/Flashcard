@@ -24,6 +24,7 @@ def main_menu(CURRENT_CARD_SET = None):
     create_new_card_set() 
   if response in ['2']:
     card_set = load_card_set()
+    return card_set
   if response in ['3']:
     add_to_existing_card_set()
   if response in ['3']:
@@ -31,7 +32,6 @@ def main_menu(CURRENT_CARD_SET = None):
   if response in ['q','Q','5']:
     sys.exit(0)
   
-  return card_set
 
 def create_new_card_set(error_msg=None):
   clear_screen()
@@ -39,35 +39,63 @@ def create_new_card_set(error_msg=None):
   if error_msg:
     name = clean_filename(prompt(error_msg))
   else:
-    name = clean_filename(prompt('Please Enter a Name for your Cardset:'))
+    name = clean_filename(prompt('Please Enter a Name for your Cardset:  '))
 
-  if not name: 
-    error_msg = "You didn't provide a valid name"
-    create_new_card_set(error_msg)
- 
-  elif name and not file_exists(name):
-    with open(APP_PATH + '/' + 'db/' + name + '.db','a+') as f:
-      f.write('')
-      prompt('Card Set %s created successfuly. Hit Enter to proceed' % (name))
+  if name:
 
-  elif name and file_exists(name):
-    error_msg = 'This file already exists. Please Choose Another Name:\n'
+    if file_exists(name):
+      error_msg = 'This file already exists. Please Choose Another Name:\n'
+      create_new_card_set(error_msg)
+
+    else:
+
+      with open(APP_PATH + '/' + 'db/' + name + '.db','a+') as f:
+        try:
+          f.write('') # create file
+        except IOError:
+          print "Could Not Open The Requested Card Set. See Log for Details"
+        else: 
+          response = prompt('Card Set %s created successfully. Do you want to add cards to your cardset now? [y/N]' % (name))
+          if response in ['y','Y']:
+            response = prompt('Do you want to add the cards \n(1) manually, or \n(2) or parse them from a structured file?')
+            if response in ['1']:
+              add_cards_manually() 
+            if response in ['2']:
+              add_cards_from_file()
+          if response in ['n','N']:
+            return
+          
+       
+
+  else:
+    error_msg = "ERROR: You didn't provide a valid name."
     create_new_card_set(error_msg)
 
 def load_card_set():
   clear_screen()
   cardsets = [ (DB_PATH + '/' + f) for f in os.listdir(DB_PATH) if f.endswith('.db') ]
   cardsets.sort(key=os.path.getctime)
-  prompt('Please Choose a Cardset:', False)
-  print '\n'.join('({}) {}'.format(n,os.path.basename(v)) for n,v in enumerate(cardsets))  
-  response = int(prompt())
-  db = Database(cardsets[response])
-  if db.db_name:
-    CURRENT_CARD_SET = db.db_name
-    prompt('Card Set Loaded!')
+  if cardsets:
+    prompt('Please Choose a Cardset:', False)
+    print '\n'.join('({}) {}'.format(n,os.path.basename(v)) for n,v in enumerate(cardsets))  
+    response = int(prompt())
+    db = Database(cardsets[response])
+    if db.db_name:
+      CURRENT_CARD_SET = db.db_name
+      prompt('Card Set Loaded!')
+      return CURRENT_CARD_SET
+  else:
+    prompt('You have no Card Sets. Hit any Key to return to the main Menu')
 
-  return CURRENT_CARD_SET
- 
+def add_cards_manually():
+  prompt('CARDS MANUALLY')
+
+def add_cards_from_file():
+  prompt('CARDS FROM FILE')
+
+##
+## Helper Functions
+##
 def clean_filename(filename):
   return filename.replace(' ','_')
 
@@ -112,7 +140,8 @@ def main():
   card_set = None
   while True:
     card_set = main_menu(CURRENT_CARD_SET=card_set)
-    card_set = os.path.basename(card_set).split('.db')[0].upper()
+    if card_set:
+      card_set = os.path.basename(card_set).split('.db')[0].upper()
     
 
 if __name__ == '__main__':
