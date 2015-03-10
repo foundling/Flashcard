@@ -92,8 +92,10 @@ def load_card_set():
 
 # PUT NEW CARDS INTO DB
 def load_cards_manually(db):
+  clear_screen() 
   front,back = None, None
   while True:
+    prompt("Enter 'q' or 'Q' into either field to quit at any time",False)
     front = prompt("FRONT: ")
     if front in ['q','Q']:
       break
@@ -102,9 +104,6 @@ def load_cards_manually(db):
       break
     card = [front, back]
     db.add_card_to_set(card)
-      
-    
-     
 
 def load_cards_from_file():
   prompt('CARDS FROM FILE')
