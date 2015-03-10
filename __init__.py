@@ -13,6 +13,7 @@ PARSE_FILES_DIR = APP_DATA_DIR + 'parse_files/'
 DB_PATH = APP_PATH + '/db'
 DB_DIR = DB_PATH + '/'
 
+
 def main_menu(CURRENT_CARD_SET = None):
   clear_screen()
 
@@ -108,17 +109,19 @@ def load_cards_manually(db):
 def load_cards_from_file(db):
   clear_screen() 
   prompt('[ NOTE: Files to be parsed should be placed in %s ]' % (PARSE_FILES_DIR),False)
-  prompt('AVAILABLE FILES: \n',False)
-  available_parse_files = show_available_files(PARSE_FILES_DIR)
-  print '\n'.join("({}) {}".format(n,v) for n,v in enumerate(available_parse_files))
-  prompt('')
+  prompt('PLEASE CHOOSE FROM AVAILABLE FILES: \n',False)
+  print show_available_files(PARSE_FILES_DIR)
+  prompt('') 
+  ## STOPPED HERE, need to get to the loading part
+  ## FIX show_avail_files
+  
 
 ##
 ## Helper Functions
 ##
 
 def show_available_files(filepath, extension=''):
-  return [ f for f in os.listdir(filepath) if f.endswith(extension) ]
+  return os.listdir(filepath)
 
 def clean_filename(filename):
   return filename.replace(' ','_')
@@ -156,10 +159,6 @@ def prompt(text='',response=True):
 def handle(response):
   pass
 
-
-
-
-
 def main():
   card_set = None
   while True:
@@ -167,6 +166,5 @@ def main():
     if card_set:
       card_set = os.path.basename(card_set).split('.db')[0].upper()
     
-
 if __name__ == '__main__':
   main()
