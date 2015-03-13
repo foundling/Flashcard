@@ -8,6 +8,7 @@
 
 import os, sys
 
+import headers
 from store import Database
 
 APP_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -16,26 +17,27 @@ PARSE_FILES_DIR = APP_DATA_DIR + 'parse_files/'
 DB_PATH = APP_PATH + '/db'
 DB_DIR = DB_PATH + '/'
 
-def main_menu(CURRENT_CARD_SET = None):
+def main_menu(db):
 
   clear_screen()
-  header()
+  headers.main_header()
   prompt('Please Choose an Option from the Menu',False)
 
   if CURRENT_CARD_SET:
     prompt('current card set: %s\n' % (CURRENT_CARD_SET), False) # False means no return value
 
-  #  Please choose an Option from the Menu
-  
-  #  (1) Create a New Card Set
-  #  (2) Load Card Set
-  #  (3) Add a Card to an Existing Card Set
-  #  (4) Quiz yourself
-  #  (5) Quit
+  choices = [ 'Create a New Card Set', 
+              'Load Card Set',
+              'Show Current Card Set',
+              'Add a Card to an Existing Card Set', 
+              'Quiz yourself\n\n. . . . . . . . . . . . . . . . . . . . . . . .\n',
+              'Info',
+              'Settings', 
+              'Quit'
+             ]
 
-  choices = ['Create a New Card Set', 'Load Card Set', 'Add a Card to an Existing Card Set', 'Quiz yourself\n\n. . . . . . .\n','Settings','Info','Quit']
   print '\n'.join("({}) {}".format(n,v) for n,v in enumerate(choices, start=1))
-  response = prompt('',True)
+  response = prompt('')
 
   if response in ['1']:
     create_new_card_set() 
@@ -45,6 +47,10 @@ def main_menu(CURRENT_CARD_SET = None):
     return card_set
 
   if response in ['3']:
+    show_current_card_set()
+    return card_set
+
+  if response in ['4']:
     add_to_existing_card_set()
 
   if response in ['3']:
@@ -56,7 +62,7 @@ def main_menu(CURRENT_CARD_SET = None):
 def create_new_card_set(error_msg=None):
 
   clear_screen()
-  new_card_set_header()
+  headers.new_card_set_header()
  
   if error_msg:
     '''
@@ -66,7 +72,7 @@ def create_new_card_set(error_msg=None):
     name = clean_filename( prompt(error_msg) )
 
   else:
-    name = clean_filename( prompt('Please Enter a NAME for your new Flashcard Set:',leading_newlines=5) )
+    name = clean_filename( prompt('Please Enter a NAME for your new Flashcard Set:\n\n') )
 
   if name:
 
@@ -85,10 +91,10 @@ def create_new_card_set(error_msg=None):
 
         else: 
           db = Database(DB_DIR + name + '.db')
-          response = prompt('Card Set "%s" created successfully.\nAdd cards to your cardset now? [y/N]' % (name))
+          response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards to your cardset now? [y/N]: ' % (name))
 
           if response in ['y','Y']:
-            response = prompt('Do you want to add the cards \n(1) manually, or \n(2) or parse them from a structured file?')
+            response = prompt('\nDo you want to add the cards\n\n(1) manually, or \n(2) or parse them from a structured file? ')
 
             if response in ['1']:
               load_cards_manually(db) 
@@ -124,10 +130,12 @@ def load_card_set():
   else:
     prompt('You have no Card Sets. Hit any Key to return to the main Menu')
 
+
 # PUT NEW CARDS INTO DB, ONE BY ONE
 def load_cards_manually(db):
 
   clear_screen() 
+  headers.load_cards_header()
   front,back = None, None
 
   while True:
@@ -149,25 +157,42 @@ def load_cards_manually(db):
 # PARSE A FILE INTO CARDS
 def load_cards_from_file(db):
   clear_screen() 
-  prompt('[ NOTE: Files to be parsed should be placed in %s ]' % (PARSE_FILES_DIR),False)
-  prompt('PLEASE CHOOSE FROM AVAILABLE FILES: \n',False)
-  print show_available_files(PARSE_FILES_DIR)
-  prompt('') 
-  ## STOPPED HERE, need to get to the loading part
-  ## FIX show_avail_files
-  
+  available_files = show_available_files(PARSE_FILES_DIR)
+
+  if available_files:
+    prompt('PLEASE CHOOSE FROM AVAILABLE FILES: \n',False)
+    for n,v in enumerate(available_files):
+      print "({}) {}".format(n,os.path.basename(v))
+    
+    response = prompt('Your choice: ') 
+
+    try:
+      index = int(response.strip())
+      available_files[index]
+
+    except IndexError:
+      print 'not a valid choice'
+      load_cards_from_file(db) 
+
+  else:
+    headers.error_header('ERROR: No files available for parsing.  \nMake sure to place your parsable files in:\n [ %s ].  \nPress any key to return to the MAIN MENU.')
+    prompt('\nERROR: No files available for parsing.\n\nMake sure to place your parsable files in:\n\n### %s ###.\n\nPress any key to return to the MAIN MENU.' % (os.path.dirname(PARSE_FILES_DIR)))
+    
+
+def show_current_card_set(db=None):
+  pass
+      
 
 ##
 ## Helper Functions
 ##
 
 def show_available_files(filepath, extension=''):
-  files = [ (os.path.dirname(filepath) + '/' + f) for f in os.listdir(filepath)]
-  for n, v in enumerate(files, start=1):
-    print "({}) {}".format(n,os.path.basename(v))
+  files = [ (os.path.dirname(filepath) + '/' + f) for f in os.listdir(filepath) if f.endswith(extension)]
+  #for n, v in enumerate(files, start=1):
+  #  print "({}) {}".format(n,os.path.basename(v))
+  return files
     
-    
-
 def clean_filename(filename):
   return filename.replace(' ','_')
 
@@ -198,6 +223,9 @@ def perror(error=None):
 # prompts or just prints if you pass it prompt = False
 def prompt(text='', response=True, leading_newlines = 0, trailing_newlines = 0):
 
+## add some logic in here to limit line lenght of text, inserting new lines at '.' before 80 char.
+
+  # this func doesn't work
   def chain_newlines(count=1):
     newlines = ''
     for i in range(count):
@@ -218,40 +246,14 @@ def prompt(text='', response=True, leading_newlines = 0, trailing_newlines = 0):
     print text + '\n'
     chain_newlines(trailing_newlines)
 
-def header():
-  print '************************************************'
-  print '*                                              *'
-  print '*                  FLASHCARD                   *'
-  print '*                                              *'
-  print '*          Your Personal Quiz-Engine           *'
-  print '*                                              *'
-  print '*                                              *'
-  print '*                                              *'
-  print '*    System Requirements: inodes, 512MB RAM    *'
-  print '*                                              *'
-  print '************************************************'
-  print ''
-
-def new_card_set_header():
-  print '************************************************'
-  print '*                                              *'
-  print '*                NEW CARD SET                  *'
-  print '*                                              *'
-  print '************************************************'
-  print ''
-
-  
-
 
 def main():
 
-  card_set = None
+  ## init db in main, pass into menus
+  db = Database(DB_DIR + 'default.db') 
 
   while True:
-    card_set = main_menu(CURRENT_CARD_SET=card_set)
-
-    if card_set:
-      card_set = os.path.basename(card_set).split('.db')[0].upper()
+    main_menu(db)
 
 
 if __name__ == '__main__':
