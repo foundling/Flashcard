@@ -22,10 +22,10 @@ def main_menu(db):
   choices = [ 'Create a New Card Set', 
               'Load Card Set',
               'Show Current Card Set',
-              'Add a Card to an Existing Card Set', 
+              'Add a Cards to Current Card Set', 
               'Quiz Yourself\n',
               'Info',
-              'Settings', 
+              'Configuration & Settings', 
               'Quit'
              ]
 
@@ -46,8 +46,11 @@ def main_menu(db):
   if response in ['3']:
     quiz_yourself()
 
-  if response in ['q','Q','5']:
+  if response in ['q','Q']:
     sys.exit(0)
+
+  else:
+    main_menu(db)
   
 def create_new_card_set(error_msg=None):
 
@@ -116,7 +119,6 @@ def load_card_set(error_msg=None):
     cardset_name = os.path.basename(cardsets[response]).split('.db')[0]
     db = Database(cardset_name)
   
-
     if db.db_name:
       prompt('Card Set Loaded!')
       return db
