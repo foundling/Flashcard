@@ -9,34 +9,27 @@
 import os, sys
 
 import headers
+from config import *
 from store import Database
-
-APP_PATH = os.path.dirname(os.path.abspath(__file__))
-APP_DATA_DIR = APP_PATH + '/data/'
-PARSE_FILES_DIR = APP_DATA_DIR + 'parse_files/'
-DB_PATH = APP_PATH + '/db'
-DB_DIR = DB_PATH + '/'
 
 def main_menu(db):
 
   clear_screen()
   headers.main_header()
+  prompt('Current Card Set: %s' % (db.db_name.upper()),False)
   prompt('Please Choose an Option from the Menu',False)
-
-  if CURRENT_CARD_SET:
-    prompt('current card set: %s\n' % (CURRENT_CARD_SET), False) # False means no return value
 
   choices = [ 'Create a New Card Set', 
               'Load Card Set',
               'Show Current Card Set',
               'Add a Card to an Existing Card Set', 
-              'Quiz yourself\n\n. . . . . . . . . . . . . . . . . . . . . . . .\n',
+              'Quiz Yourself\n',
               'Info',
               'Settings', 
               'Quit'
              ]
 
-  print '\n'.join("({}) {}".format(n,v) for n,v in enumerate(choices, start=1))
+  response = prompt('\n'.join("({}) {}".format(n,v) for n,v in enumerate(choices, start=1)) + '\n')
   response = prompt('')
 
   if response in ['1']:
@@ -249,9 +242,7 @@ def prompt(text='', response=True, leading_newlines = 0, trailing_newlines = 0):
 
 def main():
 
-  ## init db in main, pass into menus
-  db = Database(DB_DIR + 'default.db') 
-
+  db = Database() 
   while True:
     main_menu(db)
 
