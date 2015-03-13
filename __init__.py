@@ -100,7 +100,8 @@ def create_new_card_set(error_msg=None):
     create_new_card_set(error_msg)
 
 # ACTIVATE CARD SET
-def load_card_set():
+def load_card_set(error_msg=None):
+  # should return a new database
 
   clear_screen()
   cardsets = [ (DB_DIR + f) for f in os.listdir(DB_PATH) if f.endswith('.db') ]
@@ -110,7 +111,11 @@ def load_card_set():
     prompt('Please Choose a Cardset:', False)
     print '\n'.join('({}) {}'.format(n,os.path.basename(v)) for n,v in enumerate(cardsets))  
     response = int(prompt())
-    db = Database(cardsets[response])
+    if not response:
+      load_card_set('Please enter a valid number in the range of %d and %d' % (1,len(cardsets)))
+    cardset_name = os.path.basename(cardsets[response]).split('.db')[0]
+    db = Database(cardset_name)
+  
 
     if db.db_name:
       prompt('Card Set Loaded!')
