@@ -32,7 +32,7 @@ def main_menu(db):
   response = prompt('\n'.join("({}) {}".format(n,v) for n,v in enumerate(choices, start=1)) + '\n')
 
   if response in ['1']:
-    create_new_card_set() 
+    return create_new_card_set() 
 
   if response in ['2']:
     return load_card_set() # returns a re-initialized db object
@@ -74,8 +74,8 @@ def create_new_card_set(error_msg=None):
       create_new_card_set(error_msg)
 
     else:
-      card_set_name = DB_DIR + name + '.db'
-      with open(card_set_name, 'a+') as f:
+      card_set_name = name + '.db'
+      with open(DB_DIR + card_set_name, 'a+') as f:
         try:
           f.write('') # create file
 
@@ -83,7 +83,7 @@ def create_new_card_set(error_msg=None):
           print "Could Not Open The Requested Card Set. See Log for Details"
 
         else: 
-          db = Database(DB_DIR + name + '.db')
+          db = Database(name)
           response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards to your cardset now? [y/N]: ' % (name))
 
           if response in ['y','Y']:
@@ -94,9 +94,10 @@ def create_new_card_set(error_msg=None):
 
             if response in ['2']:
               load_cards_from_file(db)
-
+              
           if response in ['n','N']:
             return
+    return db
 
   else:
     error_msg = "ERROR: You didn't provide a valid name."
@@ -112,11 +113,12 @@ def load_card_set(error_msg=None):
 
   if cardsets:
     prompt('Please Choose a Cardset:', False)
-    print '\n'.join('({}) {}'.format(n,os.path.basename(v)) for n,v in enumerate(cardsets))  
+    print '\n'.join('({}) {}'.format(n,os.path.basename(v)) for n,v in enumerate(cardsets,start=1))  
     response = int(prompt())
     if not response:
       load_card_set('Please enter a valid number in the range of %d and %d' % (1,len(cardsets)))
-    cardset_name = os.path.basename(cardsets[response]).split('.db')[0]
+    response_index = response - 1
+    cardset_name = os.path.basename(cardsets[response_index]).split('.db')[0]
     db = Database(cardset_name)
   
     if db.db_name:
@@ -196,8 +198,8 @@ def show_available_files(filepath, extension=''):
 def clean_filename(filename):
   return filename.replace(' ','_')
 
-def add_to_existing_card_set():
-  pass
+def add_to_existing_card_set(db):
+  pass 
 
 def quiz_yourself():
   pass
@@ -250,12 +252,13 @@ def prompt(text='', response=True, leading_newlines = 0, trailing_newlines = 0):
 def main():
 
   db = Database() ## init with default database 
-  db.load_card_set_as_cards() ## keep cards from default in  memory
+  db.load_card_set_as_cards() ## load cards from default in  memory
   while True:
     new_db = main_menu(db)
-    if new_db is not None: 
-      db = new_db
-      db.load_card_set_as_cards()
+
+    if new_db:  
+      db = new_db # rebind db to the newly returned database object
+      db.load_card_set_as_cards() # load cards into memory
 
 if __name__ == '__main__':
   main()
