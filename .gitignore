@@ -2,5 +2,6 @@
 db/
 data/
 etc/
+env/
 .*.sw*
 *~
