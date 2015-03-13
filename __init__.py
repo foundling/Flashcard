@@ -10,6 +10,7 @@ import os, sys
 
 import headers
 from config import *
+from helper_funcs import *
 from store import Database
 
 def main_menu(db):
@@ -32,7 +33,7 @@ def main_menu(db):
   response = prompt('\n'.join("({}) {}".format(n,v) for n,v in enumerate(choices, start=1)) + '\n')
 
   if response in ['1']:
-    return create_new_card_set() 
+    return create_new_card_set() # returns a re-initialized db object
 
   if response in ['2']:
     return load_card_set() # returns a re-initialized db object
@@ -41,10 +42,10 @@ def main_menu(db):
     show_current_card_set(db)
 
   if response in ['4']:
-    add_to_existing_card_set()
+    add_to_existing_card_set(db)
 
   if response in ['3']:
-    quiz_yourself()
+    quiz_yourself(db)
 
   if response in ['q','Q']:
     sys.exit(0)
@@ -68,36 +69,31 @@ def create_new_card_set(error_msg=None):
     name = clean_filename( prompt('Please Enter a NAME for your new Flashcard Set:\n\n') )
 
   if name:
+    card_set_name = name + '.db'
 
-    if file_exists(name):
+    if file_exists(card_set_name): # file_exists default dir is db/
       error_msg = 'This file already exists. Please Choose Another Name:\n'
       create_new_card_set(error_msg)
 
     else:
-      card_set_name = name + '.db'
-      with open(DB_DIR + card_set_name, 'a+') as f:
-        try:
-          f.write('') # create file
+      with open(DB_DIR + card_set_name,'a+') as f:
+        f.write('')
 
-        except IOError:
-          print "Could Not Open The Requested Card Set. See Log for Details"
+      db = Database(name)
+      response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards to your cardset now? [y/N]: ' % (name))
 
-        else: 
-          db = Database(name)
-          response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards to your cardset now? [y/N]: ' % (name))
+      if response in ['y','Y']:
+        response = prompt('\nDo you want to add the cards\n\n(1) manually, or \n(2) or parse them from a structured file? ')
 
-          if response in ['y','Y']:
-            response = prompt('\nDo you want to add the cards\n\n(1) manually, or \n(2) or parse them from a structured file? ')
+      if response in ['1']:
+        load_cards_manually(db) 
 
-            if response in ['1']:
-              load_cards_manually(db) 
-
-            if response in ['2']:
-              load_cards_from_file(db)
+      if response in ['2']:
+        load_cards_from_file(db)
               
-          if response in ['n','N']:
-            return
-    return db
+      if response in ['n','N']:
+        return
+      return db
 
   else:
     error_msg = "ERROR: You didn't provide a valid name."
@@ -185,80 +181,21 @@ def show_current_card_set(db=None):
     print f, ": ",b 
   prompt('\nHit Any Key to Return to the Main Menu')
 
-##
-## Helper Functions
-##
-
-def show_available_files(filepath, extension=''):
-  files = [ (os.path.dirname(filepath) + '/' + f) for f in os.listdir(filepath) if f.endswith(extension)]
-  #for n, v in enumerate(files, start=1):
-  #  print "({}) {}".format(n,os.path.basename(v))
-  return files
-    
-def clean_filename(filename):
-  return filename.replace(' ','_')
-
 def add_to_existing_card_set(db):
   pass 
 
-def quiz_yourself():
-  pass
-
-def clear_screen():
-  os.system('clear')
-
-def file_exists(filename=None, loc=None):
-  if loc is None:
-    loc = APP_PATH + '/db'
-
-  if filename:
-    return os.path.isfile(loc + '/' + filename)
-
-  else:
-    print 'no filename passed' 
-    return None
-
-def perror(error=None):
-  if error: print error
-  
-
-# prompts or just prints if you pass it prompt = False
-def prompt(text='', response=True, leading_newlines = 0, trailing_newlines = 0):
-
-## add some logic in here to limit line lenght of text, inserting new lines at '.' before 80 char.
-
-  # this func doesn't work
-  def chain_newlines(count=1):
-    newlines = ''
-    for i in range(count):
-        newlines += '\n'
-    
-  if leading_newlines:
-    chain_newlines(leading_newlines)
-
-  if trailing_newlines:
-    chain_newlines(trailing_newlines)
-  
-  if response:
-    chain_newlines(leading_newlines)
-    return raw_input(text)
-
-  else:
-    chain_newlines(leading_newlines)
-    print text + '\n'
-    chain_newlines(trailing_newlines)
-
-
 def main():
-
   db = Database() ## init with default database 
   db.load_card_set_as_cards() ## load cards from default in  memory
   while True:
     new_db = main_menu(db)
 
-    if new_db:  
+    if new_db is not None:  
       db = new_db # rebind db to the newly returned database object
       db.load_card_set_as_cards() # load cards into memory
+
+def quiz_yourself(db):
+  pass
 
 if __name__ == '__main__':
   main()

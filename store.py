@@ -13,7 +13,7 @@ class Database(object):
     self.cards = None 
 
   def add_card_to_set(self, card):
-    with open(self.db_name,"a+") as _db:
+    with open(self.db_file_path,"a+") as _db:
       _db.write(self.DELIM.join(card) + '\n')
 
   def parse_file(self,filename=None):
