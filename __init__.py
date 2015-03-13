@@ -35,7 +35,7 @@ def main_menu(db):
     create_new_card_set() 
 
   if response in ['2']:
-    return load_card_set()
+    return load_card_set() # returns a re-initialized db object
 
   if response in ['3']:
     show_current_card_set(db)
@@ -113,9 +113,8 @@ def load_card_set():
     db = Database(cardsets[response])
 
     if db.db_name:
-      CURRENT_CARD_SET = db.db_name
       prompt('Card Set Loaded!')
-      return CURRENT_CARD_SET
+      return db
 
   else:
     prompt('You have no Card Sets. Hit any Key to return to the main Menu')
@@ -243,11 +242,13 @@ def prompt(text='', response=True, leading_newlines = 0, trailing_newlines = 0):
 
 def main():
 
-  db = Database() 
-  db.load_card_set_as_cards()
+  db = Database() ## init with default database 
+  db.load_card_set_as_cards() ## keep cards from default in  memory
   while True:
-    main_menu(db)
-
+    new_db = main_menu(db)
+    if new_db is not None: 
+      db = new_db
+      db.load_card_set_as_cards()
 
 if __name__ == '__main__':
   main()
