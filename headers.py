@@ -16,6 +16,14 @@ def new_card_set_header():
   print '************************************************'
   print ''
 
+def current_card_set_header():
+  print '************************************************'
+  print '*                                              *'
+  print '*                NEW CARD SET                  *'
+  print '*                                              *'
+  print '************************************************'
+  print ''
+
 def error_header(error_text):
   print '************************************************'
   print '*                                              *'

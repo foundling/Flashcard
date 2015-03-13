@@ -30,18 +30,15 @@ def main_menu(db):
              ]
 
   response = prompt('\n'.join("({}) {}".format(n,v) for n,v in enumerate(choices, start=1)) + '\n')
-  response = prompt('')
 
   if response in ['1']:
     create_new_card_set() 
 
   if response in ['2']:
-    card_set = load_card_set()
-    return card_set
+    return load_card_set()
 
   if response in ['3']:
-    show_current_card_set()
-    return card_set
+    show_current_card_set(db)
 
   if response in ['4']:
     add_to_existing_card_set()
@@ -173,8 +170,12 @@ def load_cards_from_file(db):
     
 
 def show_current_card_set(db=None):
-  pass
-      
+  clear_screen()
+  headers.current_card_set_header()
+  prompt("Card Set: %s" % db.db_name.upper(),False)
+  for f,b in [i for i in db.cards]:
+    print f, ": ",b 
+  prompt('\nHit Any Key to Return to the Main Menu')
 
 ##
 ## Helper Functions
@@ -243,6 +244,7 @@ def prompt(text='', response=True, leading_newlines = 0, trailing_newlines = 0):
 def main():
 
   db = Database() 
+  db.load_card_set_as_cards()
   while True:
     main_menu(db)
 
