@@ -1,6 +1,12 @@
 import os
 from config import *
 
+def last_opened_db():
+  dbs = [DB_DIR + f for f in os.listdir(os.path.dirname(DB_DIR))]
+  dbs_by_atime = sorted(dbs,key=os.path.getatime,reverse=True)
+  last_opened = dbs_by_atime[0]
+  return last_opened
+
 def show_available_files(filepath, extension=''):
   '''
   documentation to be written
@@ -23,15 +29,15 @@ def clear_screen():
   '''
   os.system('clear')
 
-def file_exists(filename=None, loc=None):
+def db_exists(db_name, loc=None):
   '''
 
   '''
   if loc is None:
     loc = DB_PATH
 
-  if filename:
-    return os.path.isfile(loc + '/' + filename)
+  if db_name:
+    return os.path.isfile(loc + '/' + db_name)
 
   else:
     print 'no filename passed'

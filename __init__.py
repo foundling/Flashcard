@@ -10,10 +10,11 @@ import os, sys
 
 import headers
 from config import *
+from store import Database
 from helper_funcs import *
 from store import Database
 
-def main_menu(db):
+def main_menu(db=None):
 
   clear_screen()
   headers.main_header()
@@ -36,7 +37,8 @@ def main_menu(db):
     return create_new_card_set() # returns a re-initialized db object
 
   if response in ['2']:
-    return load_card_set() # returns a re-initialized db object
+    db = load_card_set() # returns a re-initialized db object
+    return db
 
   if response in ['3']:
     show_current_card_set(db)
@@ -51,9 +53,10 @@ def main_menu(db):
     sys.exit(0)
 
   else:
-    main_menu(db)
+    return main_menu(db)
   
-def create_new_card_set(error_msg=None):
+  
+def create_new_card_set(db, error_msg=None):
 
   clear_screen()
   headers.new_card_set_header()
@@ -63,23 +66,20 @@ def create_new_card_set(error_msg=None):
     We prompt them with the error message. Prompt by default returns the user's response, 
     which is the filename, so we take that and clean it.
     '''
-    name = clean_filename( prompt(error_msg) )
+    cardset_name = clean( prompt(error_msg) )
 
   else:
-    name = clean_filename( prompt('Please Enter a NAME for your new Flashcard Set:\n\n') )
+    cardset_name = clean( prompt('Please Enter a NAME for your new Flashcard Set:\n\n') )
 
-  if name:
-    card_set_name = name + '.db'
+  if cardset_name:
+    cardset_name += '.db' 
 
-    if file_exists(card_set_name): # file_exists default dir is db/
-      error_msg = 'This file already exists. Please Choose Another Name:\n'
+    if db_exists(card_set_name): # file_exists default dir is db/
+      error_msg = 'This card set already exists. Please Choose Another Name:\n'
       create_new_card_set(error_msg)
 
     else:
-      with open(DB_DIR + card_set_name,'a+') as f:
-        f.write('')
-
-      db = Database(name)
+      db = Database(cardset_name)
       response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards to your cardset now? [y/N]: ' % (name))
 
       if response in ['y','Y']:
@@ -205,18 +205,11 @@ def add_to_existing_card_set(db):
   
   
 
-def main():
-  db = Database() ## init with default database 
-  db.load_card_set_as_cards() ## load cards from default in  memory
+def main(db):
   while True:
-    new_db = main_menu(db)
-
-    if new_db is not None:  
-      db = new_db # rebind db to the newly returned database object
-      db.load_card_set_as_cards() # load cards into memory
-
-def quiz_yourself(db):
-  pass
+    db = main_menu(db) # if user creates a card set, db binding should be to current FC db
 
 if __name__ == '__main__':
-  main()
+  default_db_name = last_opened_db()
+  db = Database(default_db_name)
+  main(db)

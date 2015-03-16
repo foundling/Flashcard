@@ -47,8 +47,3 @@ class Database(object):
 
   def get_db_name(self):
     return self.db_name
- 
-
-
-if __name__ == '__main__':
-  db = Database('db/default.db')
