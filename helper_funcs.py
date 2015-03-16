@@ -1,6 +1,14 @@
 import os
 from config import *
 
+
+def print_cardset(db):
+  rows = db.select('select * from flashcards')
+  for row in rows:
+    print 'FRONT: ', row[0]
+    print 'BACK: ', row[1] 
+  
+
 def last_opened_db():
   dbs = [DB_DIR + f for f in os.listdir(os.path.dirname(DB_DIR))]
   dbs_by_atime = sorted(dbs,key=os.path.getatime,reverse=True)

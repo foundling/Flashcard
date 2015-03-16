@@ -8,13 +8,12 @@
 
 import os, sys
 
-import headers
 from config import *
 from store import Database
 from helper_funcs import *
-from store import Database
+import headers
 
-def main_menu(db=None):
+def main_menu(db):
 
   clear_screen()
   headers.main_header()
@@ -24,7 +23,7 @@ def main_menu(db=None):
   choices = [ 'Create a New Card Set', 
               'Load Card Set',
               'Show Current Card Set',
-              'Add a Cards to Current Card Set', 
+              'Add Cards to Current Card Set', 
               'Quiz Yourself\n',
               'Info',
               'Configuration & Settings', 
@@ -34,26 +33,24 @@ def main_menu(db=None):
   response = prompt('\n'.join("({}) {}".format(n,v) for n,v in enumerate(choices, start=1)) + '\n')
 
   if response in ['1']:
-    return create_new_card_set(db)
+    db = create_new_card_set(db)
 
-  if response in ['2']:
+  elif response in ['2']:
     db = load_card_set() # returns a re-initialized db object
-    return db
 
-  if response in ['3']:
+  elif response in ['3']:
     show_current_card_set(db)
 
-  if response in ['4']:
+  elif response in ['4']:
     add_to_existing_card_set(db)
 
-  if response in ['3']:
+  elif response in ['3']:
     quiz_yourself(db)
 
-  if response in ['q','Q']:
+  elif response in ['q','Q']:
     sys.exit(0)
 
-  else:
-    return main_menu(db)
+  return main_menu(db)
   
   
 def create_new_card_set(db, error_msg=None):
@@ -72,33 +69,34 @@ def create_new_card_set(db, error_msg=None):
     cardset_name = clean( prompt('Please Enter a NAME for your new Flashcard Set:\n\n') )
 
   if cardset_name:
-    cardset_name += '.db' 
 
     if db_exists(cardset_name): # file_exists default dir is db/
       error_msg = 'This card set already exists. Please Choose Another Name:\n'
       create_new_card_set(error_msg)
 
     else:
+      db.cur.close() #wrap up before rebinding to new db object
+      db.con.close()
+
       db = Database(cardset_name)
-      response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards to your cardset now? [y/N]: ' % (cardset_name))
+      response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards now? [y/N]: ' % (cardset_name))
 
       if response in ['y','Y']:
         response = prompt('\nDo you want to add the cards\n\n(1) manually, or \n(2) or parse them from a structured file? ')
+        if response in ['1']:
+          load_cards_manually(db)
 
-      if response in ['1']:
-        load_cards_manually(db) 
+        elif response in ['2']:
+          load_cards_from_file(db)
 
-      if response in ['2']:
-        load_cards_from_file(db)
-              
-      if response in ['n','N']:
-        return
-      return db
+      elif response in ['q','Q']:
+        sys.exit(0)
 
   else:
     error_msg = "ERROR: You didn't provide a valid name."
     create_new_card_set(error_msg)
 
+  return db
 # ACTIVATE CARD SET
 def load_card_set(error_msg=None):
   # should return a new database
@@ -171,12 +169,11 @@ def load_cards_from_file(db):
     prompt('\nERROR: No files available for parsing.\n\nMake sure to place your parsable files in:\n\n### %s ###.\n\nPress any key to return to the MAIN MENU.' % (os.path.dirname(PARSE_FILES_DIR)))
     
 
-def show_current_card_set(db=None):
+def show_current_card_set(db):
   clear_screen()
   headers.current_card_set_header()
   prompt("Card Set: %s" % db.db_name.upper(),False)
-  for f,b in [i for i in db.cards]:
-    print f, ": ",b 
+  print_cardset(db)
   prompt('\nHit Any Key to Return to the Main Menu')
 
 def add_to_existing_card_set(db):
@@ -197,17 +194,13 @@ def add_to_existing_card_set(db):
     if back in ['q','Q']:
       break
 
-    card = [front, back]
-  prompt('Added! (stub)')
-  #db.add_card_to_set(card)
+    db.addCard(front,back)
   
-  
-
+ 
 def main(db):
   while True:
-    db = main_menu(db) # if user creates a card set, db binding should be to current FC db
+      db = main_menu(db) 
 
 if __name__ == '__main__':
-  default_db_name = last_opened_db()
-  db = Database(default_db_name)
+  db = Database() # flashcard is default db  
   main(db)
