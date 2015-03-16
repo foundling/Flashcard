@@ -5,8 +5,8 @@ from config import *
 def print_cardset(db):
   rows = db.select('select * from flashcards')
   for row in rows:
-    print 'FRONT: ', row[0]
-    print 'BACK: ', row[1] 
+    print 'FRONT: ', row[1]
+    print 'BACK: ', row[2] 
   
 
 def last_opened_db():

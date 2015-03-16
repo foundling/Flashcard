@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
 # Flashcard
+#
 # A text-based, quiz-yourself application
-#
-# Licensed under the GNU objective distro interactive license.
-#
+# copyright (c) 2015 by Alex Ramsdell
 
 import os, sys
 
@@ -36,7 +35,7 @@ def main_menu(db):
     db = create_new_card_set(db)
 
   elif response in ['2']:
-    db = load_card_set() # returns a re-initialized db object
+    db = load_card_set() 
 
   elif response in ['3']:
     show_current_card_set(db)
@@ -195,7 +194,9 @@ def add_to_existing_card_set(db):
       break
 
     db.addCard(front,back)
-  
+
+def quiz_yourself(db):
+  pass
  
 def main(db):
   while True:
