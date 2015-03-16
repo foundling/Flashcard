@@ -16,7 +16,7 @@ class Database(object):
     with open(self.db_file_path,"a+") as _db:
       _db.write(self.DELIM.join(card) + '\n')
 
-  def parse_file(self,filename=None):
+  def parse_file(self,filename):
     '''
     returns a list of front,back tuples
     '''

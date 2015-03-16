@@ -182,7 +182,28 @@ def show_current_card_set(db=None):
   prompt('\nHit Any Key to Return to the Main Menu')
 
 def add_to_existing_card_set(db):
-  pass 
+
+  clear_screen() 
+  headers.load_cards_header()
+  front,back = None, None
+
+  while True:
+    prompt("Enter 'q' or 'Q' into either field to quit at any time",False)
+    front = prompt("FRONT: ")
+
+    if front in ['q','Q']:
+      break
+
+    back = prompt("BACK: ")
+
+    if back in ['q','Q']:
+      break
+
+    card = [front, back]
+  prompt('Added! (stub)')
+  #db.add_card_to_set(card)
+  
+  
 
 def main():
   db = Database() ## init with default database 
