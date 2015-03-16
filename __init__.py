@@ -34,7 +34,7 @@ def main_menu(db=None):
   response = prompt('\n'.join("({}) {}".format(n,v) for n,v in enumerate(choices, start=1)) + '\n')
 
   if response in ['1']:
-    return create_new_card_set() # returns a re-initialized db object
+    return create_new_card_set(db)
 
   if response in ['2']:
     db = load_card_set() # returns a re-initialized db object
@@ -74,13 +74,13 @@ def create_new_card_set(db, error_msg=None):
   if cardset_name:
     cardset_name += '.db' 
 
-    if db_exists(card_set_name): # file_exists default dir is db/
+    if db_exists(cardset_name): # file_exists default dir is db/
       error_msg = 'This card set already exists. Please Choose Another Name:\n'
       create_new_card_set(error_msg)
 
     else:
       db = Database(cardset_name)
-      response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards to your cardset now? [y/N]: ' % (name))
+      response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards to your cardset now? [y/N]: ' % (cardset_name))
 
       if response in ['y','Y']:
         response = prompt('\nDo you want to add the cards\n\n(1) manually, or \n(2) or parse them from a structured file? ')
@@ -144,9 +144,7 @@ def load_cards_manually(db):
     if back in ['q','Q']:
       break
 
-    card = [front, back]
-    db.add_card_to_set(card)
-
+    db.addCard(front,back)
 
 # PARSE A FILE INTO CARDS
 def load_cards_from_file(db):

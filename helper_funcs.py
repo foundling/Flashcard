@@ -17,7 +17,7 @@ def show_available_files(filepath, extension=''):
   #  print "({}) {}".format(n,os.path.basename(v))
   return files
    
-def clean_filename(filename):
+def clean(filename):
   '''
 
   '''

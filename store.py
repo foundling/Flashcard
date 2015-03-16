@@ -4,7 +4,7 @@ import config
 
 class Database(object):
 
-  def __init__(self, dbfile='db/default.db'):
+  def __init__(self, dbfile='db/flashcard.db'):
     db_exists =  os.path.exists(dbfile)
 
     if db_exists:
@@ -25,6 +25,9 @@ class Database(object):
     self.cur = self.db.cursor()
     self.db_file = os.path.abspath(dbfile)
     self.db_name = os.path.basename(self.db_file).split('.db')[0]
+
+  def addCard(self, front, back):
+    self.cur.execute('''INSERT INTO flashcards VALUES(?,?,?,?)''',(None,front,back,0))
 
   def select(self, sql, safe_tuple=None):
     if safe_tuple:
