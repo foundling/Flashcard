@@ -1,0 +1,5 @@
+Performing a SELECT statement using LIKE in pysqlite :
+  ## note the extra comma in the 1-tuple passed in: 
+  db.cur.execute('''select * from flashcards where front like ?''', ('%test2%',))
+
+Use triple quotes for any DB select/insert, etc statement via Python to avoid syntax error issues with parentheses
