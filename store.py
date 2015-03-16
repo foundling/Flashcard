@@ -1,34 +1,29 @@
-import os, sys
+import os
+import sqlite3 
 import config
 
 class Database(object):
 
-  db_dir = config.DB_DIR 
-  suffix = '.db'
+  def __init__(self, dbfile='db/default.db'):
+    db_exists =  os.path.exists(dbfile)
+    if not db_exists:
+      ''' read schema file and execute with executescript
+      which lets you run multiple SQL queries in a 
+      single call 
+      '''
+      print 'LOADING SCHEMA' 
+      with open('flashcard_schema.sql','rt') as f:
+        schema_directives = f.read()
+        self.db = sqlite3.connect(dbfile)
+        self.db.executescript(schema_directives)
 
-  def __init__(self,db_name='default',DELIM='#'):
-    self.DELIM = DELIM
-    self.db_file_path = self.db_dir + db_name + self.suffix 
-    self.db_name = db_name
-    self.cards = None 
+    self.db_file = os.path.abspath(dbfile)
+    self.db_name = os.path.basename(self.db_file).split('.db')[0]
 
-  def add_card_to_set(self, card):
-    with open(self.db_file_path,"a+") as _db:
-      _db.write(self.DELIM.join(card) + '\n')
+  def get_db_name(self):
+    return self.db_name
+ 
 
-  def parse_file(self,filename):
-    '''
-    returns a list of front,back tuples
-    '''
-    words = []
-    with open(filename,'r') as fh:
-      for line in fh.readlines():
-        front,back = line.split(self.DELIM) 
-        words.append((front,back.strip()))
-    return words
 
-  def load_card_set_as_cards(self):
-    with open(self.db_file_path) as _db:
-      lines = _db.readlines() 
-      self.cards = [i.strip().split('#') for i in lines]
-
+if __name__ == '__main__':
+  db = Database('db/default.db')
