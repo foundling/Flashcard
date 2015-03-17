@@ -15,9 +15,7 @@ from helper_funcs import *
 import headers
 
 def main_menu(db):
-
   clear_screen()
-  headers.main_header()
   prompt('Current Card Set: %s' % (db.db_name.upper()),False)
   prompt('Please Choose an Option from the Menu',False)
 
@@ -217,5 +215,8 @@ def main(db):
       db = main_menu(db) 
 
 if __name__ == '__main__':
+  clear_screen()
+  headers.title_page()
+  prompt()
   db = Database() # flashcard is default db  
   main(db)

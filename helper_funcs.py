@@ -16,19 +16,11 @@ def last_opened_db():
   return last_opened
 
 def show_available_files(filepath, extension=''):
-  '''
-  documentation to be written
-  '''
   files = [ (os.path.dirname(filepath) + '/' + f) for f in os.listdir(filepath)\
     if f.endswith(extension) and not f.startswith('.')]
-  #for n, v in enumerate(files, start=1):
-  #  print "({}) {}".format(n,os.path.basename(v))
   return files
    
 def clean(filename):
-  '''
-
-  '''
   return filename.replace(' ','_')
 
 def clear_screen():
@@ -49,8 +41,6 @@ def load_cards_into_memory(db):
   rows = db.select('''SELECT front, back FROM flashcards''')
   return [ (row[0],row[1]) for row in rows ]
  
-
-# prompts or just prints if you pass it prompt = False
 def prompt(text='', response=True, leading_newlines = 0, trailing_newlines = 0):
 
   if response:
