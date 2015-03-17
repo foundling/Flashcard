@@ -32,30 +32,23 @@ def clean(filename):
   return filename.replace(' ','_')
 
 def clear_screen():
-  '''
-
-  '''
   os.system('clear')
 
 def db_exists(db_name, loc=None):
-  '''
-
-  '''
   if loc is None:
-    loc = DB_PATH
+    loc = DB_DIR
 
   if db_name:
-    return os.path.isfile(loc + '/' + db_name)
+    return os.path.isfile(loc + '/' + db_name + '.db')
 
   else:
     print 'no filename passed'
     return None
 
-def perror(error=None):
-  '''
-
-  '''
-  if error: print error
+def load_cards_into_memory(db):
+  rows = db.select('''SELECT * FROM flashcards''')
+  return [ (row[1],row[2]) for row in rows]
+ 
 
 # prompts or just prints if you pass it prompt = False
 def prompt(text='', response=True, leading_newlines = 0, trailing_newlines = 0):

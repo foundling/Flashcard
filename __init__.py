@@ -43,7 +43,7 @@ def main_menu(db):
   elif response in ['4']:
     add_to_existing_card_set(db)
 
-  elif response in ['3']:
+  elif response in ['5']:
     quiz_yourself(db)
 
   elif response in ['q','Q']:
@@ -52,50 +52,44 @@ def main_menu(db):
   return main_menu(db)
   
   
-def create_new_card_set(db, error_msg=None):
+def create_new_card_set(db, e=None):
 
   clear_screen()
   headers.new_card_set_header()
- 
-  if error_msg:
-    '''
-    We prompt them with the error message. Prompt by default returns the user's response, 
-    which is the filename, so we take that and clean it.
-    '''
-    cardset_name = clean( prompt(error_msg) )
+
+  if e:
+    cardset_name = clean( prompt(e) )
 
   else:
     cardset_name = clean( prompt('Please Enter a NAME for your new Flashcard Set:\n\n') )
 
-  if cardset_name:
-
-    if db_exists(cardset_name): # file_exists default dir is db/
-      error_msg = 'This card set already exists. Please Choose Another Name:\n'
-      create_new_card_set(error_msg)
-
-    else:
-      db.cur.close() #wrap up before rebinding to new db object
-      db.con.close()
-
-      db = Database(cardset_name)
-      response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards now? [y/N]: ' % (cardset_name))
-
-      if response in ['y','Y']:
-        response = prompt('\nDo you want to add the cards\n\n(1) manually, or \n(2) or parse them from a structured file? ')
-        if response in ['1']:
-          load_cards_manually(db)
-
-        elif response in ['2']:
-          load_cards_from_file(db)
-
-      elif response in ['q','Q']:
-        sys.exit(0)
+  if db_exists(cardset_name): # file_exists default dir is db/
+    e = 'This card set already exists. Please Choose Another Name:\n'
+    response = prompt(e)
+    return create_new_card_set(db, response)
 
   else:
-    error_msg = "ERROR: You didn't provide a valid name."
-    create_new_card_set(error_msg)
+    db.cur.close() #wrap up before rebinding to new db object
+    db.con.close()
+
+    db = Database(cardset_name)
+    response = prompt('\nCard Set "%s" created successfully.\n\nAdd cards now? [y/N]: ' % (cardset_name))
+
+    if response in ['y','Y']:
+      response = prompt('\nDo you want to add the cards\n\n(1) manually, or \n(2) or parse them from a structured file? ')
+
+      if response in ['1']:
+        load_cards_manually(db)
+
+      elif response in ['2']:
+        load_cards_from_file(db)
+
+    else:
+      error_msg = "ERROR: You didn't provide a valid name."
+      create_new_card_set(error_msg)
 
   return db
+
 # ACTIVATE CARD SET
 def load_card_set(error_msg=None):
   # should return a new database
@@ -196,7 +190,8 @@ def add_to_existing_card_set(db):
     db.addCard(front,back)
 
 def quiz_yourself(db):
-  pass
+  cardset = load_cards_into_memory(db)
+  prompt(cardset)
  
 def main(db):
   while True:
