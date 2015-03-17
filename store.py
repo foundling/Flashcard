@@ -23,6 +23,8 @@ class Database(object):
         self.con = sqlite3.connect(self.db_file)
         self.con.executescript(schema_directives)
 
+    ## removes u'word' in query results
+    self.con.text_factory = str
     self.cur = self.con.cursor()
 
   def select(self, sql, safe_tuple=None):

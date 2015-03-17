@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: <encoding name> -*-
 
 # Flashcard
 #

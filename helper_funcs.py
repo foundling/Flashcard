@@ -46,35 +46,15 @@ def db_exists(db_name, loc=None):
     return None
 
 def load_cards_into_memory(db):
-  rows = db.select('''SELECT * FROM flashcards''')
-  return [ (row[1],row[2]) for row in rows]
+  rows = db.select('''SELECT front, back FROM flashcards''')
+  return [ (row[0],row[1]) for row in rows ]
  
 
 # prompts or just prints if you pass it prompt = False
 def prompt(text='', response=True, leading_newlines = 0, trailing_newlines = 0):
-  '''
-
-  '''
-
-## add some logic in here to limit line lenght of text, inserting new lines at '.' before 80 char.
-
-  # this func doesn't work
-  def chain_newlines(count=1):
-    newlines = ''
-    for i in range(count):
-        newlines += '\n'
-
-  if leading_newlines:
-    chain_newlines(leading_newlines)
-
-  if trailing_newlines:
-    chain_newlines(trailing_newlines)
 
   if response:
-    chain_newlines(leading_newlines)
-    return raw_input(text)
+    return raw_input(text).encode('utf-8')
 
   else:
-    chain_newlines(leading_newlines)
     print text + '\n'
-    chain_newlines(trailing_newlines)
