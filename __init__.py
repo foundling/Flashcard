@@ -10,6 +10,7 @@ import os, sys
 
 from config import *
 from store import Database
+from quiz import QuizEngine
 from helper_funcs import *
 import headers
 
@@ -47,7 +48,7 @@ def main_menu(db):
   elif response in ['5']:
     quiz_yourself(db)
 
-  elif response in ['q','Q']:
+  elif response in ['q','Q','8']:
     sys.exit(0)
 
   return main_menu(db)
@@ -190,10 +191,28 @@ def add_to_existing_card_set(db):
 
     db.addCard(front,back)
 
-def quiz_yourself(db):
-  cardset = load_cards_into_memory(db)
-  prompt(cardset)
- 
+def quiz_yourself(db,e=None):
+  clear_screen()
+  headers.quiz_header()
+  if e:
+    prompt(e,False)
+
+  cards = load_cards_into_memory(db)
+  quiz = QuizEngine(cards,db.db_name)
+  
+  choices = ['Randomize Cards', 'Reverse Cards', 'Keep Current Card Order']
+  quiz_type = prompt( '\n'.join("({}) {}".format(num,val) for num, val in enumerate(choices, start=1)) )
+
+  if quiz_type in ['1','2','3']:
+    quiz.startQuiz(quiz_type)
+
+  elif quiz_type in ['q','Q']:
+    sys.exit(0)
+
+  else:
+    e = "That's Not a Valid Choice. (If you want to quit, enter 'q' or 'Q')"  
+    return quiz_yourself(db,e)
+
 def main(db):
   while True:
       db = main_menu(db) 

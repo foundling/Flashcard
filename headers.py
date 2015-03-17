@@ -19,7 +19,7 @@ def new_card_set_header():
 def current_card_set_header():
   print '************************************************'
   print '*                                              *'
-  print '*                NEW CARD SET                  *'
+  print '*              CURRENT CARD SET                *'
   print '*                                              *'
   print '************************************************'
   print ''
@@ -29,14 +29,23 @@ def error_header(error_text):
   print '*                                              *'
   print '*                    ERROR                     *'
   print '*                                              *'
+  print '************************************************'
+
+def load_cards_header():
+  print '************************************************'
+  print '*                                              *'
+  print '*              LOAD CARDS MANUALLY             *'
+  print '*                                              *'
+  print '************************************************'
+  print ''
+
+def quiz_header():
+  print '************************************************'
+  print '*                                              *'
+  print '*                    QUIZ !                    *'
   print '*                                              *'
   print '************************************************'
 
 def load_cards_header():
   print '************************************************'
   print '*                                              *'
-  print '*           LOAD CARDS MANUALLY                *'
-  print '*                                              *'
-  print '*                                              *'
-  print '************************************************'
-  print ''
