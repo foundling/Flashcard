@@ -2,7 +2,9 @@ from colorama import init, Fore, Back, Style
 init(autoreset=True)
 
 class ColorPrinter(object):
-   pass 
+  def __init__(self):
+    self.WIDTH = 80
+    self.HEIGHT = 24
 
 WIDTH=80
 HEIGHT=24

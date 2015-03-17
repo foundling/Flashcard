@@ -100,10 +100,10 @@ def load_card_set(error_msg=None):
   if cardsets:
     prompt('Please Choose a Cardset:', False)
     print '\n'.join('({}) {}'.format(n,os.path.basename(v)) for n,v in enumerate(cardsets,start=1))  
-    response = int(prompt())
+    response = prompt() 
     if not response:
       load_card_set('Please enter a valid number in the range of %d and %d' % (1,len(cardsets)))
-    response_index = response - 1
+    response_index = int(response) - 1
     cardset_name = os.path.basename(cardsets[response_index]).split('.db')[0]
     db = Database(cardset_name)
   
