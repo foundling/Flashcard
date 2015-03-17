@@ -67,8 +67,7 @@ def create_new_card_set(db, e=None):
 
   if db_exists(cardset_name): # file_exists default dir is db/
     e = 'This card set already exists. Please Choose Another Name:\n'
-    response = prompt(e)
-    return create_new_card_set(db, response)
+    return create_new_card_set(db, e)
 
   else:
     db.cur.close() #wrap up before rebinding to new db object
